@@ -1,0 +1,21 @@
+2026-06-28 22:31:34,475 - INFO - ==========================================
+2026-06-28 22:31:34,476 - INFO - Starting Data Preprocessing ETL Pipeline
+2026-06-28 22:31:34,476 - INFO - ==========================================
+2026-06-28 22:31:34,476 - INFO - Loading raw data from: D:\dicoding\Membangun Sistem Machine Learning\Eksperimen_SML_Muhammad-Falah-Akbar-Al-Faiz\preprocessing\..\Telco_customer_churn_raw\Telco_customer_churn_raw.xlsx
+2026-06-28 22:31:38,389 - INFO - Successfully loaded dataset. Shape: (7043, 33)
+2026-06-28 22:31:38,390 - INFO - Cleaning 'Total Charges' column...
+2026-06-28 22:31:38,408 - INFO - Total Charges dtype: float64
+2026-06-28 22:31:38,409 - INFO - Number of empty Total Charges values resolved: 11
+2026-06-28 22:31:38,411 - INFO - Dropping target leakage & constant columns: ['CustomerID', 'Count', 'Country', 'State', 'City', 'Zip Code', 'Lat Long', 'Latitude', 'Longitude', 'Churn Label', 'Churn Score', 'CLTV', 'Churn Reason']
+2026-06-28 22:31:38,414 - INFO - Shape after columns dropped: (7043, 20)
+2026-06-28 22:31:38,416 - INFO - Performing stratified train-test split (80% Train, 20% Test)...
+2026-06-28 22:31:38,427 - INFO - Split completed: Train shape (5634, 19), Test shape (1409, 19)
+2026-06-28 22:31:38,428 - INFO - Applying StandardScaler and OneHotEncoder to prevent leakage...
+2026-06-28 22:31:38,437 - INFO - StandardScaler fitted and applied successfully.
+2026-06-28 22:31:38,514 - INFO - OneHotEncoder fitted and applied successfully.
+2026-06-28 22:31:38,519 - INFO - Saving preprocessed splits to directory: D:\dicoding\Membangun Sistem Machine Learning\Eksperimen_SML_Muhammad-Falah-Akbar-Al-Faiz\preprocessing\Telco_customer_churn_preprocessing
+2026-06-28 22:31:38,840 - INFO - Train dataset successfully saved to: D:\dicoding\Membangun Sistem Machine Learning\Eksperimen_SML_Muhammad-Falah-Akbar-Al-Faiz\preprocessing\Telco_customer_churn_preprocessing\train.csv (Shape: (5634, 31))
+2026-06-28 22:31:38,841 - INFO - Test dataset successfully saved to: D:\dicoding\Membangun Sistem Machine Learning\Eksperimen_SML_Muhammad-Falah-Akbar-Al-Faiz\preprocessing\Telco_customer_churn_preprocessing\test.csv (Shape: (1409, 31))
+2026-06-28 22:31:38,841 - INFO - ==========================================
+2026-06-28 22:31:38,841 - INFO - Data Preprocessing ETL Pipeline Completed
+2026-06-28 22:31:38,842 - INFO - ==========================================

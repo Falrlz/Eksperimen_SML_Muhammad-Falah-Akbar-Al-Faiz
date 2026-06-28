@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/dicoding/Membangun%20Sistem%20Machine%20Learning/Eksperimen_SML_Muhammad-Falah-Akbar-Al-Faiz/Membangun_model/mlruns/832428936464446979/9920e5e88b2a4ed096c5fb0ad3889554/artifacts
+end_time: 1782663111137
+entry_point_name: ''
+experiment_id: '832428936464446979'
+lifecycle_stage: active
+run_id: 9920e5e88b2a4ed096c5fb0ad3889554
+run_name: baseline_random_forest
+run_uuid: 9920e5e88b2a4ed096c5fb0ad3889554
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1782663102955
+status: 3
+tags: []
+user_id: mfala

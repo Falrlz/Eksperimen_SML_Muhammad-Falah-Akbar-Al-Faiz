@@ -5,8 +5,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.inspection import permutation_importance
 import mlflow
 import mlflow.sklearn
 
@@ -29,7 +30,7 @@ logger = logging.getLogger("modelling")
 
 def train_and_track():
     logger.info("==========================================")
-    logger.info("Starting Baseline Model Training Pipeline")
+    logger.info("Starting HistGradientBoosting Training Pipeline")
     logger.info("==========================================")
     
     logger.info("Loading preprocessed dataset splits...")
@@ -55,9 +56,10 @@ def train_and_track():
     
     # Set model hyperparameters
     params = {
-        "n_estimators": 100,
-        "max_depth": 8,
-        "min_samples_split": 5,
+        "learning_rate": 0.01,
+        "max_depth": 3,
+        "max_iter": 1000,
+        "class_weight": "balanced",
         "random_state": 42
     }
     
@@ -65,14 +67,14 @@ def train_and_track():
     mlflow.set_experiment("Telco_Customer_Churn_Eksperimen")
     
     logger.info("Starting local MLflow run...")
-    with mlflow.start_run(run_name="baseline_random_forest"):
+    with mlflow.start_run(run_name="baseline_hist_gradient_boosting"):
         # Log model parameters
         mlflow.log_params(params)
         logger.info(f"Logged parameters to MLflow: {params}")
         
-        # Train baseline classifier
-        logger.info("Training RandomForestClassifier...")
-        model = RandomForestClassifier(**params)
+        # Train classifier
+        logger.info("Training HistGradientBoostingClassifier...")
+        model = HistGradientBoostingClassifier(**params)
         model.fit(X_train, y_train)
         logger.info("Model training completed.")
         
@@ -98,7 +100,7 @@ def train_and_track():
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
                     xticklabels=['Retained', 'Churn'], 
                     yticklabels=['Retained', 'Churn'])
-        plt.title('Confusion Matrix - Baseline RF')
+        plt.title('Confusion Matrix - HistGradientBoosting')
         plt.ylabel('True Label')
         plt.xlabel('Predicted Label')
         plt.tight_layout()
@@ -112,15 +114,16 @@ def train_and_track():
         logger.info("Logged Confusion Matrix plot as an MLflow artifact.")
         
         # 2. Generate & save Feature Importance Plot
-        logger.info("Generating Feature Importance plot...")
-        importances = model.feature_importances_
+        logger.info("Generating Feature Importance plot using Permutation Importance...")
         feature_names = X_train.columns
-        indices = np.argsort(importances)[::-1]
+        result = permutation_importance(model, X_test, y_test, n_repeats=5, random_state=42)
+        importances = result.importances_mean
         
-        # Top 15 features for clean visualization
+        indices = np.argsort(importances)[::-1]
         top_n = min(15, len(feature_names))
+        
         plt.figure(figsize=(10, 6))
-        plt.title(f"Top {top_n} Feature Importances - Baseline RF")
+        plt.title(f"Top {top_n} Feature Importances (Permutation Importance)")
         plt.bar(range(top_n), importances[indices[:top_n]], align="center", color='teal')
         plt.xticks(range(top_n), [feature_names[i] for i in indices[:top_n]], rotation=45, ha='right')
         plt.xlim([-1, top_n])
@@ -136,7 +139,7 @@ def train_and_track():
         
         # Log model
         mlflow.sklearn.log_model(model, "model")
-        logger.info("Logged sklearn model object to MLflow.")
+        logger.info("Logged model object to MLflow.")
         
         # Clean up local image files
         if os.path.exists(cm_plot_path):
@@ -145,7 +148,7 @@ def train_and_track():
             os.remove(feat_plot_path)
             
     logger.info("==========================================")
-    logger.info("Baseline Model Training Completed Successfully")
+    logger.info("HistGradientBoosting Model Training Completed Successfully")
     logger.info("==========================================")
 
 if __name__ == "__main__":

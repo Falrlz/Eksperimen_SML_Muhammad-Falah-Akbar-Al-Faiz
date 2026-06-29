@@ -1,19 +1,19 @@
-2026-06-28 23:11:41,693 - INFO - ==========================================
-2026-06-28 23:11:41,694 - INFO - Starting Baseline Model Training Pipeline
-2026-06-28 23:11:41,694 - INFO - ==========================================
-2026-06-28 23:11:41,694 - INFO - Loading preprocessed dataset splits...
-2026-06-28 23:11:41,728 - INFO - Dataset splits loaded successfully.
-2026-06-28 23:11:41,731 - INFO - Train features shape: (5634, 30), Test features shape: (1409, 30)
-2026-06-28 23:11:41,770 - INFO - Starting local MLflow run...
-2026-06-28 23:11:43,028 - INFO - Logged parameters to MLflow: {'n_estimators': 100, 'max_depth': 8, 'min_samples_split': 5, 'random_state': 42}
-2026-06-28 23:11:43,028 - INFO - Training RandomForestClassifier...
-2026-06-28 23:11:43,440 - INFO - Model training completed.
-2026-06-28 23:11:43,471 - INFO - Logged evaluation metrics to MLflow: {'accuracy': 0.8055358410220014, 'precision': 0.6724137931034483, 'recall': 0.5213903743315508, 'f1_score': 0.5873493975903614}
-2026-06-28 23:11:43,471 - INFO - Generating Confusion Matrix plot...
-2026-06-28 23:11:43,887 - INFO - Logged Confusion Matrix plot as an MLflow artifact.
-2026-06-28 23:11:43,887 - INFO - Generating Feature Importance plot...
-2026-06-28 23:11:44,236 - INFO - Logged Feature Importance plot as an MLflow artifact.
-2026-06-28 23:11:51,133 - INFO - Logged sklearn model object to MLflow.
-2026-06-28 23:11:51,141 - INFO - ==========================================
-2026-06-28 23:11:51,141 - INFO - Baseline Model Training Completed Successfully
-2026-06-28 23:11:51,141 - INFO - ==========================================
+2026-06-28 23:49:02,901 - INFO - ==========================================
+2026-06-28 23:49:02,902 - INFO - Starting HistGradientBoosting Training Pipeline
+2026-06-28 23:49:02,902 - INFO - ==========================================
+2026-06-28 23:49:02,903 - INFO - Loading preprocessed dataset splits...
+2026-06-28 23:49:02,974 - INFO - Dataset splits loaded successfully.
+2026-06-28 23:49:02,978 - INFO - Train features shape: (5634, 30), Test features shape: (1409, 30)
+2026-06-28 23:49:03,046 - INFO - Starting local MLflow run...
+2026-06-28 23:49:04,305 - INFO - Logged parameters to MLflow: {'learning_rate': 0.01, 'max_depth': 3, 'max_iter': 1000, 'class_weight': 'balanced', 'random_state': 42}
+2026-06-28 23:49:04,306 - INFO - Training HistGradientBoostingClassifier...
+2026-06-28 23:49:16,766 - INFO - Model training completed.
+2026-06-28 23:49:17,042 - INFO - Logged evaluation metrics to MLflow: {'accuracy': 0.7459190915542938, 'precision': 0.5136054421768708, 'recall': 0.8074866310160428, 'f1_score': 0.6278586278586279}
+2026-06-28 23:49:17,042 - INFO - Generating Confusion Matrix plot...
+2026-06-28 23:49:17,861 - INFO - Logged Confusion Matrix plot as an MLflow artifact.
+2026-06-28 23:49:17,861 - INFO - Generating Feature Importance plot using Permutation Importance...
+2026-06-28 23:50:02,717 - INFO - Logged Feature Importance plot as an MLflow artifact.
+2026-06-28 23:50:12,627 - INFO - Logged model object to MLflow.
+2026-06-28 23:50:12,634 - INFO - ==========================================
+2026-06-28 23:50:12,634 - INFO - HistGradientBoosting Model Training Completed Successfully
+2026-06-28 23:50:12,635 - INFO - ==========================================

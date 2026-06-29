@@ -1,0 +1,35 @@
+2026-06-28 23:43:48,290 - INFO - ==========================================
+2026-06-28 23:43:48,291 - INFO - Starting Optuna Hyperparameter Tuning Pipeline
+2026-06-28 23:43:48,291 - INFO - ==========================================
+2026-06-28 23:43:48,291 - INFO - Loading preprocessed dataset splits...
+2026-06-28 23:43:48,342 - INFO - Dataset splits loaded successfully.
+2026-06-28 23:43:48,346 - INFO - Initializing DagsHub integration...
+2026-06-28 23:43:49,542 - INFO - HTTP Request: GET https://dagshub.com/api/v1/user "HTTP/1.1 200 OK"
+2026-06-28 23:43:49,556 - INFO - Accessing as Falrlz
+2026-06-28 23:43:50,958 - INFO - HTTP Request: GET https://dagshub.com/api/v1/repos/Falrlz/Eksperimen_SML_Muhammad-Falah-Akbar-Al-Faiz "HTTP/1.1 200 OK"
+2026-06-28 23:43:52,057 - INFO - HTTP Request: GET https://dagshub.com/api/v1/user "HTTP/1.1 200 OK"
+2026-06-28 23:43:52,060 - INFO - Initialized MLflow to track repo "Falrlz/Eksperimen_SML_Muhammad-Falah-Akbar-Al-Faiz"
+2026-06-28 23:43:52,061 - INFO - Repository Falrlz/Eksperimen_SML_Muhammad-Falah-Akbar-Al-Faiz initialized!
+2026-06-28 23:43:52,061 - INFO - DagsHub integration initialized successfully.
+2026-06-28 23:43:53,293 - INFO - Beginning Optuna hyperparameter optimization study...
+2026-06-28 23:43:54,623 - INFO - [Trial 0] Parameters: {'learning_rate': 0.007425645362571117, 'max_depth': 5, 'max_iter': 399, 'class_weight': 'balanced', 'random_state': 42}
+2026-06-28 23:44:16,334 - INFO - [Trial 0] F1-Score: 0.6303
+2026-06-28 23:44:17,408 - INFO - [Trial 1] Parameters: {'learning_rate': 0.03819848949985387, 'max_depth': 5, 'max_iter': 331, 'class_weight': 'balanced', 'random_state': 42}
+2026-06-28 23:44:31,870 - INFO - [Trial 1] F1-Score: 0.6247
+2026-06-28 23:44:34,119 - INFO - [Trial 2] Parameters: {'learning_rate': 0.03641192454739205, 'max_depth': 4, 'max_iter': 738, 'class_weight': 'balanced', 'random_state': 42}
+2026-06-28 23:44:52,422 - INFO - [Trial 2] F1-Score: 0.6292
+2026-06-28 23:44:53,497 - INFO - [Trial 3] Parameters: {'learning_rate': 0.006174334691553443, 'max_depth': 3, 'max_iter': 996, 'class_weight': 'balanced', 'random_state': 42}
+2026-06-28 23:45:07,915 - INFO - [Trial 3] F1-Score: 0.6279
+2026-06-28 23:45:09,019 - INFO - [Trial 4] Parameters: {'learning_rate': 0.022744528929533752, 'max_depth': 3, 'max_iter': 959, 'class_weight': 'balanced', 'random_state': 42}
+2026-06-28 23:45:21,845 - INFO - [Trial 4] F1-Score: 0.6270
+2026-06-28 23:45:22,453 - INFO - Optuna study completed.
+2026-06-28 23:45:22,453 - INFO - Best Trial F1-Score: 0.6303
+2026-06-28 23:45:22,454 - INFO - Best Parameters: {'learning_rate': 0.007425645362571117, 'max_depth': 5, 'max_iter': 399}
+2026-06-28 23:45:23,096 - INFO - Retraining best model for final evaluation...
+2026-06-28 23:45:43,609 - INFO - Logged best Confusion Matrix plot.
+2026-06-28 23:45:59,241 - INFO - Logged best Feature Importance plot.
+2026-06-28 23:46:09,561 - INFO - Logged best model object to MLflow.
+2026-06-28 23:46:10,172 - INFO - ==========================================
+2026-06-28 23:46:10,173 - INFO - Optuna Hyperparameter Tuning Completed Successfully
+2026-06-28 23:46:10,174 - INFO - ==========================================
+=

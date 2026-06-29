@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/dicoding/Membangun%20Sistem%20Machine%20Learning/Eksperimen_SML_Muhammad-Falah-Akbar-Al-Faiz/mlruns/587432918422236633/7e1ee6a5b158413eaed56b0b8a638fa7/artifacts
+end_time: 1782664529140
+entry_point_name: ''
+experiment_id: '587432918422236633'
+lifecycle_stage: active
+run_id: 7e1ee6a5b158413eaed56b0b8a638fa7
+run_name: baseline_xgb_classifier
+run_uuid: 7e1ee6a5b158413eaed56b0b8a638fa7
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1782664470259
+status: 3
+tags: []
+user_id: mfala

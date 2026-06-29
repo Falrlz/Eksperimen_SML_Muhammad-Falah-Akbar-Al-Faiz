@@ -5,9 +5,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.inspection import permutation_importance
 import dagshub
+import optuna
 import mlflow
 import mlflow.sklearn
 
@@ -30,7 +32,7 @@ logger = logging.getLogger("modelling_tuning")
 
 def perform_tuning_and_remote_track():
     logger.info("==========================================")
-    logger.info("Starting Hyperparameter Tuning Pipeline")
+    logger.info("Starting Optuna Hyperparameter Tuning Pipeline")
     logger.info("==========================================")
     
     logger.info("Loading preprocessed dataset splits...")
@@ -67,92 +69,121 @@ def perform_tuning_and_remote_track():
     # Define experiment name
     mlflow.set_experiment("Telco_Customer_Churn_Tuning")
     
-    # Define parameter search space
-    grid = [
-        {"n_estimators": 50, "max_depth": 6, "min_samples_split": 5, "random_state": 42},
-        {"n_estimators": 100, "max_depth": 10, "min_samples_split": 5, "random_state": 42},
-        {"n_estimators": 150, "max_depth": 12, "min_samples_split": 2, "random_state": 42},
-    ]
-    
-    logger.info(f"Beginning hyperparameter grid evaluation ({len(grid)} configurations)...")
-    
-    for idx, params in enumerate(grid):
-        run_name = f"tuning_rf_config_{idx + 1}"
-        logger.info(f"[Config {idx + 1}/{len(grid)}] Training with parameters: {params}")
+    # Define objective function for Optuna
+    def objective(trial):
+        # Start a nested run for each Optuna trial
+        run_name = f"optuna_trial_{trial.number}"
+        with mlflow.start_run(run_name=run_name, nested=True):
+            params = {
+                "learning_rate": trial.suggest_float("learning_rate", 0.005, 0.05, log=True),
+                "max_depth": trial.suggest_int("max_depth", 3, 6),
+                "max_iter": trial.suggest_int("max_iter", 300, 1000),
+                "class_weight": "balanced",
+                "random_state": 42
+            }
+            logger.info(f"[Trial {trial.number}] Parameters: {params}")
+            
+            mlflow.log_params(params)
+            
+            model = HistGradientBoostingClassifier(**params)
+            model.fit(X_train, y_train)
+                
+            y_pred = model.predict(X_test)
+            f1 = float(f1_score(y_test, y_pred, zero_division=0))
+            metrics = {
+                "accuracy": accuracy_score(y_test, y_pred),
+                "precision": float(precision_score(y_test, y_pred, zero_division=0)),
+                "recall": float(recall_score(y_test, y_pred, zero_division=0)),
+                "f1_score": f1
+            }
+            mlflow.log_metrics(metrics)
+            logger.info(f"[Trial {trial.number}] F1-Score: {f1:.4f}")
+            return f1
+
+    # Start a parent run for the Optuna study
+    logger.info("Beginning Optuna hyperparameter optimization study...")
+    with mlflow.start_run(run_name="optuna_study"):
+        study = optuna.create_study(direction="maximize")
+        study.optimize(objective, n_trials=5)
         
-        try:
-            with mlflow.start_run(run_name=run_name):
-                # Log hyperparameters
-                mlflow.log_params(params)
-                
-                # Train model
-                model = RandomForestClassifier(**params)
-                model.fit(X_train, y_train)
-                
-                # Evaluate performance
-                y_pred = model.predict(X_test)
-                metrics = {
-                    "accuracy": accuracy_score(y_test, y_pred),
-                    "precision": float(precision_score(y_test, y_pred, zero_division=0)),
-                    "recall": float(recall_score(y_test, y_pred, zero_division=0)),
-                    "f1_score": float(f1_score(y_test, y_pred, zero_division=0))
-                }
-                
-                # Log metrics
-                mlflow.log_metrics(metrics)
-                logger.info(f"Logged metrics: {metrics}")
-                
-                # 1. Confusion Matrix Plot
-                cm = confusion_matrix(y_test, y_pred)
-                plt.figure(figsize=(6, 5))
-                sns.heatmap(cm, annot=True, fmt='d', cmap='Oranges', 
-                            xticklabels=['Retained', 'Churn'], 
-                            yticklabels=['Retained', 'Churn'])
-                plt.title(f'Confusion Matrix - Config {idx + 1}')
-                plt.ylabel('True Label')
-                plt.xlabel('Predicted Label')
-                plt.tight_layout()
-                
-                cm_path = os.path.join(script_dir, f"cm_config_{idx + 1}.png")
-                plt.savefig(cm_path, dpi=100)
-                plt.close()
-                
-                mlflow.log_artifact(cm_path)
-                logger.info(f"Logged artifact: cm_config_{idx + 1}.png")
-                if os.path.exists(cm_path):
-                    os.remove(cm_path)
-                    
-                # 2. Feature Importance Plot
-                importances = model.feature_importances_
-                feature_names = X_train.columns
-                indices = np.argsort(importances)[::-1]
-                top_n = min(15, len(feature_names))
-                
-                plt.figure(figsize=(10, 6))
-                plt.title(f"Top {top_n} Features - Config {idx + 1}")
-                plt.bar(range(top_n), importances[indices[:top_n]], align="center", color='coral')
-                plt.xticks(range(top_n), [feature_names[i] for i in indices[:top_n]], rotation=45, ha='right')
-                plt.xlim([-1, top_n])
-                plt.tight_layout()
-                
-                feat_path = os.path.join(script_dir, f"feat_config_{idx + 1}.png")
-                plt.savefig(feat_path, dpi=100)
-                plt.close()
-                
-                mlflow.log_artifact(feat_path)
-                logger.info(f"Logged artifact: feat_config_{idx + 1}.png")
-                if os.path.exists(feat_path):
-                    os.remove(feat_path)
-                    
-                # Log model
-                mlflow.sklearn.log_model(model, "model")
-                logger.info(f"Finished and logged run '{run_name}' to MLflow.")
-        except Exception as run_error:
-            logger.error(f"Error during run '{run_name}': {str(run_error)}")
-            continue
+        logger.info("Optuna study completed.")
+        logger.info(f"Best Trial F1-Score: {study.best_value:.4f}")
+        logger.info(f"Best Parameters: {study.best_params}")
+        
+        # Log best params to the parent run
+        mlflow.log_params(study.best_params)
+        mlflow.log_metric("best_f1_score", study.best_value)
+        
+        # Retrain best model to log its artifacts
+        logger.info("Retraining best model for final evaluation...")
+        best_params = study.best_params.copy()
+        best_params["random_state"] = 42
+        best_params["class_weight"] = "balanced"
+        
+        best_model = HistGradientBoostingClassifier(**best_params)
+        best_model.fit(X_train, y_train)
+            
+        y_pred = best_model.predict(X_test)
+        
+        # Final metrics
+        best_metrics = {
+            "best_accuracy": accuracy_score(y_test, y_pred),
+            "best_precision": float(precision_score(y_test, y_pred, zero_division=0)),
+            "best_recall": float(recall_score(y_test, y_pred, zero_division=0)),
+            "best_f1_score_final": float(f1_score(y_test, y_pred, zero_division=0))
+        }
+        mlflow.log_metrics(best_metrics)
+        
+        # 1. Confusion Matrix Plot
+        cm = confusion_matrix(y_test, y_pred)
+        plt.figure(figsize=(6, 5))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Oranges', 
+                    xticklabels=['Retained', 'Churn'], 
+                    yticklabels=['Retained', 'Churn'])
+        plt.title('Confusion Matrix - Best HGB Model')
+        plt.ylabel('True Label')
+        plt.xlabel('Predicted Label')
+        plt.tight_layout()
+        
+        cm_path = os.path.join(script_dir, "best_confusion_matrix.png")
+        plt.savefig(cm_path, dpi=100)
+        plt.close()
+        
+        mlflow.log_artifact(cm_path)
+        logger.info("Logged best Confusion Matrix plot.")
+        if os.path.exists(cm_path):
+            os.remove(cm_path)
+            
+        # 2. Feature Importance Plot
+        feature_names = X_train.columns
+        result = permutation_importance(best_model, X_test, y_test, n_repeats=5, random_state=42)
+        importances = result.importances_mean
+            
+        indices = np.argsort(importances)[::-1]
+        top_n = min(15, len(feature_names))
+        
+        plt.figure(figsize=(10, 6))
+        plt.title(f"Top {top_n} Features - Best HGB Model (Permutation Importance)")
+        plt.bar(range(top_n), importances[indices[:top_n]], align="center", color='coral')
+        plt.xticks(range(top_n), [feature_names[i] for i in indices[:top_n]], rotation=45, ha='right')
+        plt.xlim([-1, top_n])
+        plt.tight_layout()
+        
+        feat_path = os.path.join(script_dir, "best_feature_importance.png")
+        plt.savefig(feat_path, dpi=100)
+        plt.close()
+        
+        mlflow.log_artifact(feat_path)
+        logger.info("Logged best Feature Importance plot.")
+        if os.path.exists(feat_path):
+            os.remove(feat_path)
+            
+        # Log model
+        mlflow.sklearn.log_model(best_model, "model")
+        logger.info("Logged best model object to MLflow.")
 
     logger.info("==========================================")
-    logger.info("Hyperparameter Tuning Completed Successfully")
+    logger.info("Optuna Hyperparameter Tuning Completed Successfully")
     logger.info("==========================================")
 
 if __name__ == "__main__":

@@ -70,19 +70,6 @@ def train_and_track():
         "random_state": 42
     }
     
-    # Initialize DagsHub integration
-    import dagshub
-    try:
-        dagshub.init(
-            repo_owner='Falrlz', 
-            repo_name='Eksperimen_SML_Muhammad-Falah-Akbar-Al-Faiz', 
-            mlflow=True
-        )
-        logger.info("DagsHub integration initialized successfully.")
-    except Exception as e:
-        logger.warning(f"DagsHub auth failed/skipped: {str(e)}")
-        logger.warning("Falling back to local tracking.")
-        
     # Set MLflow experiment
     mlflow.set_experiment("Telco_Customer_Churn_Eksperimen")
     

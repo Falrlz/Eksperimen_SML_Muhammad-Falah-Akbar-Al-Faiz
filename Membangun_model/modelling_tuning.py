@@ -1,5 +1,12 @@
 import os
 import sys
+
+# Reconfigure stdout/stderr to handle Unicode emojis without crashing on Windows
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(errors='replace')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(errors='replace')
+
 import logging
 import pandas as pd
 import numpy as np
@@ -69,6 +76,9 @@ def perform_tuning_and_remote_track():
     # Define experiment name
     mlflow.set_experiment("Telco_Customer_Churn_Tuning")
     
+    # Enable MLflow Autolog for Scikit-Learn
+    mlflow.sklearn.autolog()
+    
     # Define objective function for Optuna
     def objective(trial):
         # Start a nested run for each Optuna trial
@@ -83,8 +93,7 @@ def perform_tuning_and_remote_track():
             }
             logger.info(f"[Trial {trial.number}] Parameters: {params}")
             
-            mlflow.log_params(params)
-            
+            # Train classifier
             model = HistGradientBoostingClassifier(**params)
             model.fit(X_train, y_train)
                 
@@ -99,7 +108,7 @@ def perform_tuning_and_remote_track():
             mlflow.log_metrics(metrics)
             logger.info(f"[Trial {trial.number}] F1-Score: {f1:.4f}")
             return f1
-
+ 
     # Start a parent run for the Optuna study
     logger.info("Beginning Optuna hyperparameter optimization study...")
     with mlflow.start_run(run_name="optuna_study"):
@@ -111,7 +120,6 @@ def perform_tuning_and_remote_track():
         logger.info(f"Best Parameters: {study.best_params}")
         
         # Log best params to the parent run
-        mlflow.log_params(study.best_params)
         mlflow.log_metric("best_f1_score", study.best_value)
         
         # Retrain best model to log its artifacts
@@ -178,9 +186,8 @@ def perform_tuning_and_remote_track():
         if os.path.exists(feat_path):
             os.remove(feat_path)
             
-        # Log model
-        mlflow.sklearn.log_model(best_model, "model")
-        logger.info("Logged best model object to MLflow.")
+        # Note: Model object and parameters are logged automatically by mlflow.sklearn.autolog()
+        logger.info("Best model object and parameters logged automatically by autolog.")
 
     logger.info("==========================================")
     logger.info("Optuna Hyperparameter Tuning Completed Successfully")

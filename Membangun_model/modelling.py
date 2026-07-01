@@ -1,5 +1,12 @@
 import os
 import sys
+
+# Reconfigure stdout/stderr to handle Unicode emojis without crashing on Windows
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(errors='replace')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(errors='replace')
+
 import logging
 import pandas as pd
 import numpy as np
@@ -66,11 +73,12 @@ def train_and_track():
     # Set local MLflow experiment
     mlflow.set_experiment("Telco_Customer_Churn_Eksperimen")
     
+    # Enable MLflow Autolog for Scikit-Learn
+    mlflow.sklearn.autolog()
+    
     logger.info("Starting local MLflow run...")
     with mlflow.start_run(run_name="baseline_hist_gradient_boosting"):
-        # Log model parameters
-        mlflow.log_params(params)
-        logger.info(f"Logged parameters to MLflow: {params}")
+        logger.info("HistGradientBoosting parameters configured.")
         
         # Train classifier
         logger.info("Training HistGradientBoostingClassifier...")
@@ -137,9 +145,8 @@ def train_and_track():
         mlflow.log_artifact(feat_plot_path)
         logger.info("Logged Feature Importance plot as an MLflow artifact.")
         
-        # Log model
-        mlflow.sklearn.log_model(model, "model")
-        logger.info("Logged model object to MLflow.")
+        # Note: Model object and parameters are logged automatically by mlflow.sklearn.autolog()
+        logger.info("Model object and parameters logged automatically by autolog.")
         
         # Clean up local image files
         if os.path.exists(cm_plot_path):
